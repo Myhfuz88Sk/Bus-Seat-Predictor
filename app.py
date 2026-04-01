@@ -157,7 +157,7 @@ def login_submit():
 
         if user and user["password"] == hashed_password:
             flash(f"🎉 Welcome, {user['full_name']}!", "success")
-            return redirect(url_for('state_page'))
+            return redirect(url_for('main_page'))
         else:
             flash("Invalid email or password.", "error")
             return redirect(url_for('login_page'))
