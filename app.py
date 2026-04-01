@@ -5,34 +5,39 @@ import pandas as pd
 import requests
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from database import get_connection, create_users_table
-from src.data_loader import load_data  # Make sure this exists and works
+from src.data_loader import load_data  # Correct import
 
 # -------------------------------
-# App Setup
+# Load environment variables
+# -------------------------------
+from dotenv import load_dotenv
+load_dotenv()  # loads variables from .env
+
+FLASK_SECRET_KEY = os.environ.get("FLASK_SECRET_KEY", "fallback_secret")
+WEATHER_API_KEY = os.environ.get("WEATHER_API_KEY")
+DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///auth.db")
+
+# -------------------------------
+# Initialize Flask
 # -------------------------------
 app = Flask(__name__)
-app.secret_key = "supersecretkey"  # Replace with env var in production
+app.secret_key = FLASK_SECRET_KEY
 
 # Ensure users table exists
 create_users_table()
-
-# Base directory for absolute paths
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.path.join(BASE_DIR, 'enhanced_redbus_model.pkl')
 
 # -------------------------------
 # Load Model
 # -------------------------------
 try:
-    with open(MODEL_PATH, 'rb') as f:
+    with open('enhanced_redbus_model.pkl', 'rb') as f:
         model = pickle.load(f)
-    print("Model loaded successfully.")
 except Exception as e:
     print("Error loading model:", e)
     model = None
 
 # -------------------------------
-# Helper Functions
+# Feature Engineering
 # -------------------------------
 def engineer_features(df):
     """
@@ -43,10 +48,11 @@ def engineer_features(df):
     df['doj'] = pd.to_datetime(df['doj'], errors='coerce')
     df['day_of_week'] = df['doj'].dt.dayofweek
     df['month'] = df['doj'].dt.month
+    # Replace with actual features
     return df[['src', 'dest', 'day_of_week', 'month']]
 
 # -------------------------------
-# Routes
+# Routes: Pages
 # -------------------------------
 @app.route('/')
 def home():
@@ -89,17 +95,16 @@ def predict():
     src = data.get('src')
     dest = data.get('dest')
 
-    # Load CSV datasets
-    train_path = os.path.join(BASE_DIR, 'data', 'train.csv')
-    test_path = os.path.join(BASE_DIR, 'data', 'test.csv')
-    transactions_path = os.path.join(BASE_DIR, 'data', 'transactions.csv')
-
-    train_df, test_df, transactions_df = load_data(train_path, test_path, transactions_path)
+    # Load datasets if needed
+    train_df, test_df, transactions_df = load_data(
+        'data/train.csv',
+        'data/test.csv',
+        'data/transactions.csv'
+    )
 
     if train_df is None or test_df is None or transactions_df is None:
         return jsonify({"error": "Failed to load dataset files."})
 
-    # Create single-row DataFrame for prediction
     input_df = pd.DataFrame([{'doj': doj, 'src': src, 'dest': dest}])
     features_df = engineer_features(input_df)
 
@@ -118,23 +123,22 @@ def predict():
     return jsonify(prediction_result)
 
 # -------------------------------
-# Signup
+# Signup Submission
 # -------------------------------
 @app.route('/signup_submit', methods=['POST'])
 def signup_submit():
     try:
-        fullname = request.form.get('fullname')
-        email = request.form.get('email')
-        usertype = request.form.get('usertype')
-        password = request.form.get('password')
-        confirm_password = request.form.get('confirm_password')
+        fullname = request.form['fullname']
+        email = request.form['email']
+        usertype = request.form['usertype']
+        password = request.form['password']
+        confirm_password = request.form['confirm_password']
 
         if password != confirm_password:
             flash("Passwords do not match!", "error")
             return redirect(url_for('signup_page'))
 
         hashed_password = hashlib.sha256(password.encode()).hexdigest()
-
         conn = get_connection()
         cursor = conn.cursor()
 
@@ -155,18 +159,20 @@ def signup_submit():
         return redirect(url_for('login_page'))
 
     except Exception as e:
+        import traceback
         print("Signup error:", e)
-        flash("Internal server error.", "error")
+        traceback.print_exc()
+        flash("Internal server error", "error")
         return redirect(url_for('signup_page'))
 
 # -------------------------------
-# Login
+# Login Submission
 # -------------------------------
 @app.route('/login_submit', methods=['POST'])
 def login_submit():
     try:
-        email = request.form.get('email')
-        password = request.form.get('password')
+        email = request.form['email']
+        password = request.form['password']
         hashed_password = hashlib.sha256(password.encode()).hexdigest()
 
         conn = get_connection()
@@ -186,25 +192,27 @@ def login_submit():
             return redirect(url_for('login_page'))
 
     except Exception as e:
+        import traceback
         print("Login error:", e)
+        traceback.print_exc()
         flash("Internal server error. Please try again.", "error")
         return redirect(url_for('login_page'))
 
 # -------------------------------
-# Forecast
+# Weather Forecast
 # -------------------------------
 @app.route('/forecast', methods=['POST'])
 def forecast():
     city = request.form.get('city')
-    api_key = os.environ.get("WEATHER_API_KEY")  # Use env var for safety
-    if not api_key:
-        return jsonify({"error": "Weather API key not set."})
-
     try:
-        api_url = f"http://api.weatherapi.com/v1/forecast.json?key={api_key}&q={city}&days=1"
+        if not WEATHER_API_KEY:
+            return jsonify({"error": "Weather API key not set."})
+
+        api_url = f"http://api.weatherapi.com/v1/forecast.json?key={WEATHER_API_KEY}&q={city}&days=1"
         response = requests.get(api_url)
         response.raise_for_status()
         data = response.json()
+
         forecast_info = {
             "location": data['location']['name'],
             "region": data['location']['region'],
@@ -218,8 +226,8 @@ def forecast():
         return jsonify({"error": "Network error. Please check your connection."})
 
 # -------------------------------
-# Main
+# Run App
 # -------------------------------
-# No debug=True here for production
 if __name__ == '__main__':
-    app.run()
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port, debug=True)
