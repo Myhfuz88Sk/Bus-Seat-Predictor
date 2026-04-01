@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indian States</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+            padding: 20px;
+        }
+
+        .animated-btn {
+            display: inline-block;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-decoration: none;
+            color: white;
+            background: linear-gradient(45deg, #FF5F6D, #FFC371);
+            border-radius: 50px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            margin-bottom: 20px; 
+        }
+        
+        .animated-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+            background: linear-gradient(45deg, #FFC371, #FF5F6D);
+        }
+
+        .animated-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .animated-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: left 0.4s ease-in-out;
+        }
+
+        .animated-btn:hover::before {
+            left: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            color: rgba(255,255,255,0.9);
+            font-size: 1.2rem;
+        }
+
+        .state-section {
+            margin-bottom: 50px;
+        }
+
+        .state-title {
+            color: white;
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+            padding-bottom: 10px;
+        }
+
+        .districts-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .district-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .district-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .district-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .district-card:hover .district-image {
+            transform: scale(1.05);
+        }
+
+        .district-info {
+            padding: 15px;
+            text-align: center;
+        }
+
+        .district-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .district-population {
+            color: #666;
+            font-size: 0.9rem;
+            background: #f0f0f0;
+            padding: 5px 10px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 1.2rem;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 1200px) {
+            .districts-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (max-width: 900px) {
+            .districts-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .districts-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .districts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+
+
+        .animated-btn {
+    display: inline-block;
+    padding: 10px 20px; /* Reduced padding */
+    font-size: 1rem; /* Reduced font size */
+    font-weight: bold;
+    text-decoration: none;
+    color: white;
+    background: linear-gradient(45deg, #28dbff);
+    border-radius: 50px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2); /* Reduced shadow */
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    border: none;
+    cursor: pointer;
+    margin: 5px; /* Reduced margin */
+}
+
+.animated-btn:hover {
+    transform: translateY(-3px); /* Reduced hover effect */
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3); /* Reduced hover shadow */
+    background: linear-gradient(45deg, #57f7f4, #55cfff);
+}
+
+.animated-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.animated-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.2);
+    transition: left 0.4s ease-in-out;
+}
+
+.animated-btn:hover::before {
+    left: 100%;
+}
+    </style>
+</head>
+<body>
+    <div style="position: absolute; top: 20px; right: 20px; z-index: 10;">
+    <!-- <a href="/" class="animated-btn">Log Out</a> -->
+    <a href="district.html" class="animated-btn">Check AP/TS Dist</a>
+    <a href="main.html" class="animated-btn">Predict</a>
+    <a href="analasys.html" class="animated-btn">Analytics</a>
+  </div>
+    <div class="header">
+        <h1>🏛️ Indian States</h1>
+        <p>Explore all states with population data</p>
+    </div>
+
+    <div id="loading" class="loading">Loading state information...</div>
+    <div id="content"></div>
+
+    <script>
+        const indianStates = [
+            {
+                name: "Andhra Pradesh",
+                capital: "Amaravati",
+                population: "49,386,799",
+                landmark: "4,469,340",
+                imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/Dhyaan_buddha_Amaravthi.jpg/330px-Dhyaan_buddha_Amaravthi.jpg"
+            },
+            {
+                name: "Arunachal Pradesh",
+                capital: "Itanagar",
+                population: "1,529,820",
+                landmark: "76,491",
+                imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/A_wintry_morning_in_Vijaynagar.jpg/1280px-A_wintry_morning_in_Vijaynagar.jpg"
+            },
+            {
+                name: "Assam",
+                capital: "Dispur",
+                population: "35,606,535",
+                landmark: "1,780,327",
+                imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Kamakhya_Temple_-_DEV_8829.jpg/1280px-Kamakhya_Temple_-_DEV_8829.jpg"
+            },
+            {
+                name: "Bihar",
+                capital: "Patna",
+                population: "128,500,364",
+                landmark: "4,425,018",
+                imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Temple_No.-_3%2C_Nalanda_Archaeological_Site.jpg/1280px-Temple_No.-_3%2C_Nalanda_Archaeological_Site.jpg"
+            },
+            {
+                name: "Chhattisgarh",
+                capital: "Raipur",
+                population: "30,180,621",
+                landmark: "1,509,031",
+                imageUrl: "https://upload.wikimedia.org/wikipedia/commons/7/76/Open_Hand_monument%2C_Chandigarh.jpg"
+            },
+            {
+                name: "Goa",
+                capital: "Panaji",
+                population: "1,539,951",
+                landmark: "76,998",
+                imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/BeachFun.jpg/1920px-BeachFun.jpg"
+            },
+            {
+                name: "Gujarat",
+                capital: "Gandhinagar",
+                population: "72,154,236",
+                landmark: "3,607,712",
+                imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Rani_ki_vav_02.jpg/1280px-Rani_ki_vav_02.jpg"
+            },
+            {
+                name: "Haryana",
+                capital: "Chandigarh",
+                population: "30,131,885",
+                landmark: "1,506,594",
+                imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/Cyber_City_View.jpg/1920px-Cyber_City_View.jpg"
+            },
+            {
+                name: "Himachal Pradesh",
+                capital: "Shimla",
+                population: "7,645,841",
+                landmark: "382,292",
+                imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/BaijNath.jpg/1280px-BaijNath.jpg"
+            },
+            {
+                name: "Jammu and Kashmir",
+                capital: "Srinagar (Summer), Jammu (Winter)",
+                population: "13,636,897",
+                landmark: "681,845",
+                imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Kinnaur_Kailash.jpg/1280px-Kinnaur_Kailash.jpg"
+            },
+            {
+                name: "Jharkhand",
+                capital: "Ranchi",
+                population: "38,593,948",
+                landmark: "1,929,697",
+                imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Cluster_of_temples_in_the_village_of_Maluti_at_Dumka_district_in_Jharkhand_State.jpg/1280px-Cluster_of_temples_in_the_village_of_Maluti_at_Dumka_district_in_Jharkhand_State.jpg"
+            },
+            {
+                name: "Karnataka",
+                capital: "Bengaluru",
+                population: "67,460,049",
+                landmark: "6,373,002",
+                imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/GolGumbaz2_altered.jpg/1280px-GolGumbaz2_altered.jpg"
+            },
+            {
+                name: "Kerala",
+                capital: "Thiruvananthapuram",
+                population: "36,252,900",
+                landmark: "1,812,645",
+                imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Boathouse_%287063399547%29.jpg/500px-Boathouse_%287063399547%29.jpg"
+            },
+            {
+                name: "Madhya Pradesh",
+                capital: "Bhopal",
+                population: "85,000,000",
+                landmark: "4,250,000",
+                imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Marble_Rocks_-_Jabalpur.jpg/330px-Marble_Rocks_-_Jabalpur.jpg"
+            },
+            {
+                name: "Maharashtra",
+                capital: "Mumbai",
+                population: "123,000,000",
+                landmark: "6,150,000",
+                imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Cave_26%2C_Ajanta.jpg/1280px-Cave_26%2C_Ajanta.jpg"
+            },
+            {
+                name: "Manipur",
+                capital: "Imphal",
+                population: "3,260,000",
+                landmark: "163,000",
+                imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Breathtaking_beauty_of_Dzukou_Valley_in_Manipur-Nagaland_border_%28edit%29.jpg/1920px-Breathtaking_beauty_of_Dzukou_Valley_in_Manipur-Nagaland_border_%28edit%29.jpg"
+            },
+            {
+                name: "Meghalaya",
+                capital: "Shillong",
+                population: "3,356,864",
+                landmark: "167,843",
+                imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Dawki_River%2C_Meghalaya%2C_India.jpg/1920px-Dawki_River%2C_Meghalaya%2C_India.jpg"
+            },
+            {
+                name: "Mizoram",
+                capital: "Aizawl",
+                population: "1,273,830",
+                landmark: "63,692",
+                imageUrl: "https://upload.wikimedia.org/wikipedia/commons/a/ab/Embossed_Figures_Kawtchhuah_Ropui_Vangchhia_Mapuia_Hnamte_%281%29.JPG"
+            },
+            {
+                name: "Nagaland",
+                capital: "Kohima",
+                population: "2,249,695",
+                landmark: "112,485",
+                imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Doyang_Lake_House.jpg/1280px-Doyang_Lake_House.jpg"
+            },
+            {
+                name: "Odisha",
+                capital: "Bhubaneswar",
+                population: "46,356,334",
+                landmark: "2,317,817",
+                imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Puri_Ratha_Yatra.jpg/1280px-Puri_Ratha_Yatra.jpg"
+            },
+            {
+                name: "Punjab",
+                capital: "Chandigarh",
+                population: "30,950,560",
+                landmark: "1,547,528",
+                imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Golden_Temple%2C_Amritsar%2C_Punjab_UNAG.jpg/500px-Golden_Temple%2C_Amritsar%2C_Punjab_UNAG.jpg"
+            },
+            {
+                name: "Rajasthan",
+                capital: "Jaipur",
+                population: "81,032,689",
+                landmark: "4,051,634",
+                imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Thar_Khuri.jpg/1280px-Thar_Khuri.jpg"
+            },
+            {
+                name: "Sikkim",
+                capital: "Gangtok",
+                population: "671,720",
+                landmark: "33,586",
+                imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Gurudongmar.Lake.jpg/1280px-Gurudongmar.Lake.jpg"
+            },
+            {
+                name: "Tamil Nadu",
+                capital: "Chennai",
+                population: "79,701,452",
+                landmark: "3,985,073",
+                imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Mamallapuram_view.jpg/1280px-Mamallapuram_view.jpg"
+            },
+            {
+                name: "Telangana",
+                capital: "Hyderabad",
+                population: "38,510,982",
+                landmark: "3,925,549",
+                imageUrl: "https://upload.wikimedia.org/wikipedia/commons/3/31/Warangal_fort.jpg"
+            },
+            {
+                name: "Tripura",
+                capital: "Agartala",
+                population: "4,169,794",
+                landmark: "208,490",
+                imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Tripura_State_Museum_Agartala_Tripura_India.jpg/1920px-Tripura_State_Museum_Agartala_Tripura_India.jpg"
+            },
+            {
+                name: "Uttar Pradesh",
+                capital: "Lucknow",
+                population: "241,066,874",
+                landmark: "5,053,344",
+                imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Taj_Mahal_%28Edited%29.jpeg/1280px-Taj_Mahal_%28Edited%29.jpeg"
+            },
+            {
+                name: "Uttarakhand",
+                capital: "Dehradun",
+                population: "11,819,000",
+                landmark: "590,950",
+                imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Auli%2C_India.jpg/1920px-Auli%2C_India.jpg"
+            },
+            {
+                name: "West Bengal",
+                capital: "Kolkata",
+                population: "101,000,000",
+                landmark: "2,050,000",
+                imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Dakshineswar_Kali_Temple%2C_Dakshineswar%2C_West_Bengal%2C_India_%282007%29.jpg/1280px-Dakshineswar_Kali_Temple%2C_Dakshineswar%2C_West_Bengal%2C_India_%282007%29.jpg"
+            }
+        ];
+
+        function createDistrictCard(district) {
+            const card = document.createElement('div');
+            card.className = 'district-card';
+            
+            const img = document.createElement('img');
+            img.className = 'district-image';
+            img.alt = district.name;
+            img.loading = 'lazy';
+            img.src = district.imageUrl;
+            
+            img.onerror = () => {
+                img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZTBmMWY1Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJcIkFyaWFsXCIsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjAiIGZpbGw9IiM3Nzc3NzkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5JbWFnZSBOb3QgRm91bmQ8L3RleHQ+PC9zdmc+';
+            };
+            
+            const info = document.createElement('div');
+            info.className = 'district-info';
+            
+            const name = document.createElement('div');
+            name.className = 'district-name';
+            name.textContent = district.name;
+            
+            const landmark = document.createElement('div');
+            landmark.style.cssText = 'font-size: 0.8rem; color: #888; margin-bottom: 5px; font-style: italic;';
+            landmark.textContent = district.landmark;
+            
+            const population = document.createElement('div');
+            population.className = 'district-population';
+            population.textContent = `Population: ${district.population}`;
+            
+            info.appendChild(name);
+            info.appendChild(landmark);
+            info.appendChild(population);
+            card.appendChild(img);
+            card.appendChild(info);
+            
+            return card;
+        }
+
+        function createStateSection(title, districts) {
+            const section = document.createElement('div');
+            section.className = 'state-section';
+            
+            const stateTitle = document.createElement('h2');
+            stateTitle.className = 'state-title';
+            stateTitle.textContent = title;
+            
+            const grid = document.createElement('div');
+            grid.className = 'districts-grid';
+            
+            districts.forEach(district => {
+                const card = createDistrictCard(district);
+                grid.appendChild(card);
+            });
+            
+            section.appendChild(stateTitle);
+            section.appendChild(grid);
+            
+            return section;
+        }
+
+        function loadStates() {
+            const content = document.getElementById('content');
+            const loading = document.getElementById('loading');
+            
+            setTimeout(() => {
+                const statesSection = createStateSection('🌾 All Indian States', indianStates);
+                content.appendChild(statesSection);
+                
+                loading.style.display = 'none';
+                content.style.display = 'block';
+            }, 500);
+        }
+
+        window.addEventListener('DOMContentLoaded', loadStates);
+    </script>
+</body>
+</html>

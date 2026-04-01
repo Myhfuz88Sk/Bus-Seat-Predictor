@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - Bus Demand Forecast</title>
+<style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-image: url('login.jpg'); /* Replace with your image path */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+
+        .signup-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 10px 20px;
+            font-size: 14px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+
+        .signup-button:hover {
+            background-color: #218838;
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.9); /* Transparent white background */
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        .login-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .tabs button {
+            background-color: transparent;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            color: #007BFF;
+            transition: color 0.3s, border-bottom 0.3s;
+        }
+
+        .tabs button.active {
+            color: #333;
+            border-bottom: 2px solid #007BFF;
+        }
+
+        .form-container {
+            overflow: hidden;
+            position: relative;
+            width: 100%;
+            height: 260px;
+        }
+
+        .form-slider {
+            display: flex;
+            transition: transform 0.3s ease-in-out;
+            width: 200%;
+        }
+
+        .form {
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            outline: none;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            border-color: #007BFF;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .login-button:hover {
+            background-color: #0056b3;
+        }
+
+        .footer-text {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+        }
+
+        .footer-text a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+
+        .footer-text a:hover {
+            text-decoration: underline;
+        }
+
+        .error {
+            color: red;
+            font-size: 12px;
+            margin-top: -10px;
+            margin-bottom: 10px;
+            display: none;
+        }
+    </style>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-r from-purple-500 to-indigo-500 flex items-center justify-center min-h-screen font-sans">
+<div class="bg-white p-8 rounded-3xl shadow-xl w-full max-w-md">
+    <h1 class="text-2xl font-bold text-center mb-6">Welcome Back</h1>
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, msg in messages %}
+          <div class="mb-4 p-3 rounded {{ 'bg-green-100 text-green-700' if category=='success' else 'bg-red-100 text-red-700' }}">
+            {{ msg }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('login_submit') }}" method="POST" class="space-y-4">
+        <input type="email" name="email" placeholder="Email Address" class="w-full px-4 py-3 border rounded-xl">
+        <input type="password" name="password" placeholder="Password" class="w-full px-4 py-3 border rounded-xl">
+        <button type="submit" class="w-full bg-purple-600 text-white py-3 rounded-xl font-bold hover:bg-purple-700 transition">Sign In</button>
+    </form>
+
+    <p class="mt-4 text-center text-gray-500">Don't have an account? <a href="{{ url_for('signup_page') }}" class="text-purple-600 font-semibold">Create account</a></p>
+</div>
+</body>
+</html>

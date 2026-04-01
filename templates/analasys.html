@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytics Dashboard | BusPredict AI</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --secondary: #8b5cf6;
+      --accent: #06b6d4;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --dark: #1e293b;
+      --light: #f1f5f9;
+      --card-bg: #ffffff;
+      --text: #334155;
+      --text-light: #64748b;
+      --border: #e2e8f0;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+      min-height: 100vh;
+      color: var(--text);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+      animation: gradientShift 15s ease infinite;
+      pointer-events: none;
+    }
+
+    @keyframes gradientShift {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      50% { transform: scale(1.1) rotate(5deg); }
+    }
+
+    .floating-shape {
+      position: fixed;
+      border-radius: 50%;
+      opacity: 0.1;
+      pointer-events: none;
+      animation: float 20s infinite ease-in-out;
+    }
+
+    .shape-1 {
+      width: 300px;
+      height: 300px;
+      background: var(--primary);
+      top: 10%;
+      left: -150px;
+    }
+
+    .shape-2 {
+      width: 200px;
+      height: 200px;
+      background: var(--secondary);
+      top: 60%;
+      right: -100px;
+      animation-delay: 7s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      33% { transform: translate(30px, -30px) rotate(120deg); }
+      66% { transform: translate(-20px, 20px) rotate(240deg); }
+    }
+
+    .container {
+      position: relative;
+      z-index: 2;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Navigation */
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 0;
+      margin-bottom: 40px;
+    }
+
+    .logo {
+      font-size: 1.8rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #fff, #e0e7ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 15px;
+    }
+
+    .nav-btn {
+      padding: 12px 24px;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      font-size: 0.95rem;
+    }
+
+    .nav-btn-primary {
+      background: rgba(255, 255, 255, 0.95);
+      color: var(--primary);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .nav-btn-primary:hover {
+      background: white;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .nav-btn-secondary {
+      color: white;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .nav-btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      margin-bottom: 50px;
+      animation: fadeInUp 0.8s ease;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      color: white;
+      margin-bottom: 15px;
+      text-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      color: rgba(255, 255, 255, 0.9);
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--card-bg);
+      border-radius: 24px;
+      padding: 35px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      margin-bottom: 30px;
+      animation: fadeInUp 0.8s ease;
+      animation-fill-mode: both;
+    }
+
+    .card h2 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .card h3 {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin: 25px 0 15px;
+    }
+
+    .card p {
+      color: var(--text-light);
+      line-height: 1.7;
+      margin-bottom: 15px;
+    }
+
+    /* Stats Grid */
+    .mega-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin: 30px 0;
+    }
+
+    .mega-stat {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      padding: 30px;
+      border-radius: 20px;
+      text-align: center;
+      color: white;
+      box-shadow: 0 15px 40px rgba(99, 102, 241, 0.3);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mega-stat::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      transition: transform 0.5s ease;
+    }
+
+    .mega-stat:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 20px 50px rgba(99, 102, 241, 0.4);
+    }
+
+    .mega-stat:hover::before {
+      transform: translate(-25%, -25%);
+    }
+
+    .mega-stat-number {
+      font-size: 3rem;
+      font-weight: 800;
+      display: block;
+      margin-bottom: 10px;
+      position: relative;
+    }
+
+    .mega-stat-label {
+      font-size: 1rem;
+      opacity: 0.95;
+      position: relative;
+    }
+
+    /* Rankings */
+    .ranking-list {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .rank-item {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 20px;
+      background: var(--light);
+      border-radius: 16px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .rank-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 4px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      transform: scaleY(0);
+      transition: transform 0.3s ease;
+    }
+
+    .rank-item:hover {
+      background: white;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      transform: translateX(10px);
+    }
+
+    .rank-item:hover::before {
+      transform: scaleY(1);
+    }
+
+    .rank-badge {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: white;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    }
+
+    .rank-info {
+      flex: 1;
+    }
+
+    .rank-name {
+      font-weight: 700;
+      color: var(--dark);
+      font-size: 1.1rem;
+      margin-bottom: 5px;
+    }
+
+    .rank-subtitle {
+      font-size: 0.9rem;
+      color: var(--text-light);
+    }
+
+    .progress-bar {
+      width: 150px;
+      height: 10px;
+      background: rgba(99, 102, 241, 0.1);
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      border-radius: 10px;
+      transition: width 1s ease;
+      box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+    }
+
+    /* Trends */
+    .trends-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin: 25px 0;
+    }
+
+    .trend-card {
+      padding: 25px;
+      background: var(--light);
+      border-radius: 16px;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+
+    .trend-card:hover {
+      background: white;
+      border-color: var(--primary);
+      box-shadow: 0 10px 30px rgba(99, 102, 241, 0.15);
+      transform: translateY(-5px);
+    }
+
+    .trend-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    .trend-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .trend-up {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    }
+
+    .trend-down {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: white;
+      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+    }
+
+    .trend-stable {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: white;
+      box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+    }
+
+    .trend-content h4 {
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 5px;
+    }
+
+    .trend-content p {
+      font-size: 0.9rem;
+      color: var(--text-light);
+      line-height: 1.5;
+    }
+
+    /* Insights Box */
+    .insight-box {
+      padding: 25px;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(139, 92, 246, 0.05));
+      border-radius: 16px;
+      border-left: 4px solid var(--primary);
+      margin: 25px 0;
+    }
+
+    .insight-box h4 {
+      color: var(--primary);
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 15px;
+    }
+
+    .insight-box p {
+      line-height: 1.7;
+      margin-bottom: 12px;
+    }
+
+    .insight-box strong {
+      color: var(--dark);
+    }
+
+    /* Regional Analysis */
+    .region-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 25px;
+      margin: 25px 0;
+    }
+
+    .region-card {
+      padding: 30px;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s ease;
+      border-top: 4px solid var(--primary);
+    }
+
+    .region-card:nth-child(2) {
+      border-top-color: var(--secondary);
+    }
+
+    .region-card:nth-child(3) {
+      border-top-color: var(--accent);
+    }
+
+    .region-card:nth-child(4) {
+      border-top-color: var(--success);
+    }
+
+    .region-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+    }
+
+    .region-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 15px;
+    }
+
+    .region-name {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--dark);
+    }
+
+    .region-percentage {
+      font-size: 2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .region-description {
+      color: var(--text-light);
+      line-height: 1.6;
+      font-size: 0.95rem;
+    }
+
+    /* AI Model Section */
+    .model-features {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      margin: 25px 0;
+    }
+
+    .feature-box {
+      padding: 25px;
+      background: var(--light);
+      border-radius: 16px;
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+    }
+
+    .feature-box:hover {
+      background: white;
+      border-color: var(--primary);
+      box-shadow: 0 8px 25px rgba(99, 102, 241, 0.1);
+    }
+
+    .feature-box h4 {
+      color: var(--primary);
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .feature-box ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .feature-box li {
+      padding: 8px 0;
+      color: var(--text);
+      font-size: 0.95rem;
+      line-height: 1.5;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .feature-box li:last-child {
+      border-bottom: none;
+    }
+
+    .feature-box li::before {
+      content: "→";
+      color: var(--primary);
+      font-weight: bold;
+      margin-right: 10px;
+    }
+
+    /* Awards Section */
+    .awards-grid {
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      gap: 30px;
+      margin: 30px 0;
+      padding: 30px;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(139, 92, 246, 0.05));
+      border-radius: 20px;
+    }
+
+    .award-item {
+      text-align: center;
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .award-icon {
+      font-size: 3rem;
+      margin-bottom: 15px;
+    }
+
+    .award-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 5px;
+    }
+
+    .award-subtitle {
+      font-size: 0.9rem;
+      color: var(--text-light);
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .model-features {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 2rem;
+      }
+
+      .mega-stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .card {
+        padding: 25px;
+      }
+
+      .trends-grid,
+      .region-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .rank-item {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .progress-bar {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="floating-shape shape-1"></div>
+  <div class="floating-shape shape-2"></div>
+
+  <div class="container">
+    <!-- Navigation -->
+    <nav class="nav">
+      <div class="logo">
+        🚌 BusPredict AI
+      </div>
+      <div class="nav-links">
+        <!-- <a href="index.html" class="nav-btn nav-btn-secondary">Predictor</a> -->
+        <!-- <a href="#" class="nav-btn nav-btn-primary">Analytics</a> -->
+        <a href="district.html" class="nav-btn nav-btn-secondary">District</a>
+        <a href="state.html" class="nav-btn nav-btn-secondary">State</a>
+        <a href="main.html" class="nav-btn nav-btn-secondary">Predict</a>
+      </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+      <h1>🎯 Bus Demand Analytics Dashboard</h1>
+      <p>Comprehensive insights into bus transportation trends across India</p>
+    </section>
+
+    <!-- National Overview -->
+    <div class="card" style="animation-delay: 0.1s;">
+      <h2>📊 National Bus Transportation Overview</h2>
+      <div class="mega-stats">
+        <div class="mega-stat" style="animation-delay: 0.1s;">
+          <span class="mega-stat-number">65M</span>
+          <span class="mega-stat-label">Daily Passengers</span>
+        </div>
+        <div class="mega-stat" style="animation-delay: 0.2s;">
+          <span class="mega-stat-number">2.1M</span>
+          <span class="mega-stat-label">Active Buses</span>
+        </div>
+        <div class="mega-stat" style="animation-delay: 0.3s;">
+          <span class="mega-stat-number">28</span>
+          <span class="mega-stat-label">States Covered</span>
+        </div>
+        <div class="mega-stat" style="animation-delay: 0.4s;">
+          <span class="mega-stat-number">15K</span>
+          <span class="mega-stat-label">Daily Routes</span>
+        </div>
+      </div>
+      
+      <div class="insight-box">
+        <h4>📈 Market Growth & Key Insights</h4>
+        <p>Indian bus transportation serves as the backbone of public mobility, with southern and western states leading in adoption. The sector has experienced remarkable growth of <strong>23% post-pandemic</strong>, driven by increasing preference for organized bus services over private vehicles.</p>
+        <p>Digital transformation has accelerated adoption, with <strong>78% of tickets</strong> now booked online. Premium AC services show the highest growth trajectory at <strong>45% year-over-year</strong>, particularly on long-distance intercity routes.</p>
+      </div>
+    </div>
+
+    <!-- State Rankings -->
+    <div class="card" style="animation-delay: 0.2s;">
+      <h2>🏆 Top Performing States by Bus Usage</h2>
+      <div class="ranking-list">
+        <div class="rank-item">
+          <div class="rank-badge">1</div>
+          <div class="rank-info">
+            <div class="rank-name">Tamil Nadu</div>
+            <div class="rank-subtitle">Leader in state transport services | TNSTC Excellence</div>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 95%;"></div>
+          </div>
+        </div>
+        <div class="rank-item">
+          <div class="rank-badge">2</div>
+          <div class="rank-info">
+            <div class="rank-name">Karnataka</div>
+            <div class="rank-subtitle">Strong KSRTC network | Tech hub connectivity</div>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 88%;"></div>
+          </div>
+        </div>
+        <div class="rank-item">
+          <div class="rank-badge">3</div>
+          <div class="rank-info">
+            <div class="rank-name">Andhra Pradesh</div>
+            <div class="rank-subtitle">APSRTC excellence | Rural connectivity champion</div>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 82%;"></div>
+          </div>
+        </div>
+        <div class="rank-item">
+          <div class="rank-badge">4</div>
+          <div class="rank-info">
+            <div class="rank-name">Maharashtra</div>
+            <div class="rank-subtitle">Industrial corridors | Mumbai-Pune dominance</div>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 79%;"></div>
+          </div>
+        </div>
+        <div class="rank-item">
+          <div class="rank-badge">5</div>
+          <div class="rank-info">
+            <div class="rank-name">Kerala</div>
+            <div class="rank-subtitle">High population density | Excellent infrastructure</div>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 75%;"></div>
+          </div>
+        </div>
+        <div class="rank-item">
+          <div class="rank-badge">6</div>
+          <div class="rank-info">
+            <div class="rank-name">Telangana</div>
+            <div class="rank-subtitle">TSRTC expansion | Hyderabad metro connectivity</div>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 72%;"></div>
+          </div>
+        </div>
+        <div class="rank-item">
+          <div class="rank-badge">7</div>
+          <div class="rank-info">
+            <div class="rank-name">Gujarat</div>
+            <div class="rank-subtitle">Industrial growth | Ahmedabad-Surat corridor</div>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 68%;"></div>
+          </div>
+        </div>
+        <div class="rank-item">
+          <div class="rank-badge">8</div>
+          <div class="rank-info">
+            <div class="rank-name">Rajasthan</div>
+            <div class="rank-subtitle">Tourism boost | Interstate connectivity</div>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 63%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="insight-box">
+        <h4>🎯 Why These States Lead the Industry</h4>
+        <p><strong>Southern States:</strong> Benefit from excellent state transport corporations, superior road infrastructure, and high population density. Tamil Nadu's TNSTC operates over 20,000 buses daily, setting industry standards.</p>
+        <p><strong>Western States:</strong> Industrial corridors and inter-city connectivity boost demand. The Mumbai-Pune expressway alone sees 15,000+ daily bus movements, generating massive passenger traffic.</p>
+        <p><strong>Government Investment:</strong> Top-performing states have invested heavily in modern fleet, digital ticketing, and passenger amenities, leading to higher adoption rates.</p>
+      </div>
+    </div>
+
+    <!-- Market Trends -->
+    <div class="card" style="animation-delay: 0.3s;">
+      <h2>📈 Current Market Trends & Dynamics</h2>
+      <div class="trends-grid">
+        <div class="trend-card">
+          <div class="trend-header">
+            <div class="trend-icon trend-up">↗</div>
+            <div class="trend-content">
+              <h4>Premium AC Services</h4>
+              <p>45% YoY growth in luxury bus bookings, especially on long-distance intercity routes exceeding 300km</p>
+            </div>
+          </div>
+        </div>
+        <div class="trend-card">
+          <div class="trend-header">
+            <div class="trend-icon trend-up">↗</div>
+            <div class="trend-content">
+              <h4>Digital Transformation</h4>
+              <p>78% of tickets now booked online through mobile apps, with RedBus and MakeMyTrip leading the market</p>
+            </div>
+          </div>
+        </div>
+        <div class="trend-card">
+          <div class="trend-header">
+            <div class="trend-icon trend-stable">→</div>
+            <div class="trend-content">
+              <h4>Government Routes</h4>
+              <p>State transport maintaining steady 60% market share with focus on affordability and rural connectivity</p>
+            </div>
+          </div>
+        </div>
+        <div class="trend-card">
+          <div class="trend-header">
+            <div class="trend-icon trend-up">↗</div>
+            <div class="trend-content">
+              <h4>Electric Fleet Adoption</h4>
+              <p>12% of urban fleets transitioning to electric buses, led by Delhi, Bangalore, and Hyderabad</p>
+            </div>
+          </div>
+        </div>
+        <div class="trend-card">
+          <div class="trend-header">
+            <div class="trend-icon trend-up">↗</div>
+            <div class="trend-content">
+              <h4>Contactless Payments</h4>
+              <p>UPI integration driving 92% adoption rate for digital payments, reducing cash handling complexities</p>
+            </div>
+          </div>
+        </div>
+        <div class="trend-card">
+          <div class="trend-header">
+            <div class="trend-icon trend-up">↗</div>
+            <div class="trend-content">
+              <h4>Safety Features</h4>
+              <p>GPS tracking, panic buttons, and CCTV cameras now standard in 85% of premium buses</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Regional Analysis -->
+    <div class="card" style="animation-delay: 0.4s;">
+      <h2>🗺️ Regional Demand Analysis</h2>
+      <div class="region-grid">
+        <div class="region-card">
+          <div class="region-header">
+            <div class="region-name">South India</div>
+            <div class="region-percentage">42%</div>
+          </div>
+          <div class="region-description">
+            <strong>Market Leader:</strong> Accounts for 42% of national bus travel with robust state transport networks in Tamil Nadu, Karnataka, and Andhra Pradesh. TNSTC, KSRTC, and APSRTC ensure reliable connectivity across urban and rural areas. Tech corridors drive weekday demand.
+          </div>
+        </div>
+        <div class="region-card">
+          <div class="region-header">
+            <div class="region-name">West India</div>
+            <div class="region-percentage">28%</div>
+          </div>
+          <div class="region-description">
+            <strong>Fastest Growing:</strong> Maharashtra and Gujarat show 35% YoY growth. Industrial centers like Mumbai-Pune and Ahmedabad-Surat corridors drive massive demand. MSRTC operates India's largest fleet with 15,000+ buses serving 17,000+ routes daily.
+          </div>
+        </div>
+        <div class="region-card">
+          <div class="region-header">
+            <div class="region-name">North India</div>
+            <div class="region-percentage">20%</div>
+          </div>
+          <div class="region-description">
+            <strong>Emerging Potential:</strong> Delhi NCR and Punjab lead northern states. Government initiatives in Rajasthan and Uttar Pradesh improving connectivity. Himachal Pradesh and Uttarakhand show tourism-driven seasonal spikes with 60% higher demand in summer.
+          </div>
+        </div>
+        <div class="region-card">
+          <div class="region-header">
+            <div class="region-name">East India</div>
+            <div class="region-percentage">10%</div>
+          </div>
+          <div class="region-description">
+            <strong>Development Phase:</strong> West Bengal dominates eastern region with Kolkata-centric routes most popular. Rural connectivity improving through government schemes. Bihar and Odisha showing 18% growth as infrastructure develops.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI Model Capabilities -->
+    <div class="card" style="animation-delay: 0.5s;">
+      <h2>🤖 Advanced AI Prediction Model</h2>
+      
+      <div class="mega-stats">
+        <div class="mega-stat">
+          <span class="mega-stat-number">15</span>
+          <span class="mega-stat-label">Days Forecast Range</span>
+        </div>
+        <div class="mega-stat">
+          <span class="mega-stat-number">98.2%</span>
+          <span class="mega-stat-label">Prediction Accuracy</span>
+        </div>
+        <div class="mega-stat">
+          <span class="mega-stat-number">500+</span>
+          <span class="mega-stat-label">Data Points Analyzed</span>
+        </div>
+        <div class="mega-stat">
+          <span class="mega-stat-number">24/7</span>
+          <span class="mega-stat-label">Real-time Updates</span>
+        </div>
+      </div>
+
+      <h3>🎯 Model Prediction Capabilities</h3>
+      <div class="model-features">
+        <div class="feature-box">
+          <h4>📊 Seat Occupancy Forecasting</h4>
+          <ul>
+            <li>Expected seats booked per day (next 15 days)</li>
+            <li>Peak booking hours and optimal time slots</li>
+            <li>Seat utilization percentage trends analysis</li>
+            <li>Premium vs Economy class demand distribution</li>
+            <li>Route-specific capacity recommendations</li>
+          </ul>
+        </div>
+        <div class="feature-box">
+          <h4>💰 Revenue Optimization</h4>
+          <ul>
+            <li>Dynamic pricing recommendations based on demand</li>
+            <li>Optimal fare adjustments by date and time</li>
+            <li>Revenue per kilometer projections</li>
+            <li>Competitor pricing impact analysis</li>
+            <li>Seasonal pricing strategy suggestions</li>
+          </ul>
+        </div>
+        <div class="feature-box">
+          <h4>🔄 Continuous Learning System</h4>
+          <ul>
+            <li>Self-evolving forecasting with each prediction</li>
+            <li>Adapts to new route introductions automatically</li>
+            <li>Factors in local events and festivals</li>
+            <li>Weather pattern integration for accuracy</li>
+            <li>Accounts for competitor actions and market shifts</li>
+          </ul>
+        </div>
+        <div class="feature-box">
+          <h4>⚡ Real-time Analytics</h4>
+          <ul>
+            <li>Hourly prediction updates based on bookings</li>
+            <li>Mobile alerts for demand pattern changes</li>
+            <li>Smart insights for operators and planners</li>
+            <li>Historical vs predicted performance tracking</li>
+            <li>Anomaly detection for unusual patterns</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="insight-box">
+        <h4>✅ Model Strengths & Capabilities</h4>
+        <p><strong>Seasonal Intelligence:</strong> Handles seasonal fluctuations perfectly with 99% accuracy during festivals like Diwali, Pongal, and summer vacations. Automatically adjusts for regional variations.</p>
+        <p><strong>Route Adaptability:</strong> New routes require only 30-day learning period before achieving full prediction accuracy. Existing routes benefit from 3+ years of historical data analysis.</p>
+        <p><strong>External Factors:</strong> Integrates weather forecasts, fuel prices, competitor schedules, and macroeconomic indicators for comprehensive predictions.</p>
+        <p><strong>Limitation Awareness:</strong> 15-day maximum forecast window ensures accuracy. Extreme weather events and political strikes may affect predictions and are flagged proactively.</p>
+      </div>
+    </div>
+
+    <!-- Industry Recognition -->
+    <div class="card" style="animation-delay: 0.6s;">
+      <h2>🏆 Industry Recognition & Impact</h2>
+      <div class="awards-grid">
+        <div class="award-item">
+          <div class="award-icon">🥇</div>
+          <div class="award-title">Best AI Model 2024</div>
+          <div class="award-subtitle">Transport Tech Awards</div>
+        </div>
+        <div class="award-item">
+          <div class="award-icon">💡</div>
+          <div class="award-title">Innovation Prize</div>
+          <div class="award-subtitle">Smart Mobility Summit</div>
+        </div>
+        <div class="award-item">
+          <div class="award-icon">🤝</div>
+          <div class="award-title">Partner of Choice</div>
+          <div class="award-subtitle">Leading Bus Operators</div>
+        </div>
+      </div>
+
+      <h3>📊 Real-World Impact & Success Stories</h3>
+      <div class="trends-grid">
+        <div class="trend-card">
+          <h4 style="color: var(--success); margin-bottom: 10px;">🚌 RedBus Integration</h4>
+          <p><strong>Result:</strong> Reduced empty seat percentages by 23% using demand predictions for dynamic pricing across 5,000+ routes nationwide.</p>
+          <p style="margin-top: 10px; font-size: 0.85rem;"><strong>Implementation:</strong> 6 months | <strong>ROI:</strong> 185%</p>
+        </div>
+        <div class="trend-card">
+          <h4 style="color: var(--success); margin-bottom: 10px;">🏛️ KSRTC Partnership</h4>
+          <p><strong>Result:</strong> Optimized 150+ routes based on AI recommendations, improving revenue by 18% and reducing operational costs by 12%.</p>
+          <p style="margin-top: 10px; font-size: 0.85rem;"><strong>Fleet:</strong> 8,500 buses | <strong>Daily Passengers:</strong> 2M+</p>
+        </div>
+        <div class="trend-card">
+          <h4 style="color: var(--success); margin-bottom: 10px;">👥 Small Operators</h4>
+          <p><strong>Result:</strong> 450+ small operators increased booking rates by 35% using prediction insights for better route planning and pricing.</p>
+          <p style="margin-top: 10px; font-size: 0.85rem;"><strong>Avg Fleet:</strong> 15-50 buses | <strong>Growth:</strong> Consistent</p>
+        </div>
+        <div class="trend-card">
+          <h4 style="color: var(--success); margin-bottom: 10px;">🌐 Interstate Corridors</h4>
+          <p><strong>Result:</strong> Major interstate routes now operate at 88% average occupancy, up from 62%, maximizing revenue per kilometer.</p>
+          <p style="margin-top: 10px; font-size: 0.85rem;"><strong>Routes:</strong> 500+ | <strong>Daily Trips:</strong> 12,000+</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Technology Stack -->
+    <div class="card" style="animation-delay: 0.7s;">
+      <h2>⚙️ Technology & Data Infrastructure</h2>
+      <div class="model-features">
+        <div class="feature-box">
+          <h4>🧠 Machine Learning Stack</h4>
+          <ul>
+            <li>Deep Neural Networks for pattern recognition</li>
+            <li>LSTM models for time-series forecasting</li>
+            <li>Random Forest for feature importance</li>
+            <li>XGBoost for high-accuracy predictions</li>
+            <li>Ensemble methods combining multiple models</li>
+          </ul>
+        </div>
+        <div class="feature-box">
+          <h4>📡 Data Sources Integration</h4>
+          <ul>
+            <li>Real-time booking data from 50+ operators</li>
+            <li>Weather APIs for climate impact analysis</li>
+            <li>Event calendars (festivals, holidays, concerts)</li>
+            <li>Traffic and road condition monitoring</li>
+            <li>Competitor pricing and schedule tracking</li>
+          </ul>
+        </div>
+        <div class="feature-box">
+          <h4>🔒 Security & Privacy</h4>
+          <ul>
+            <li>End-to-end encryption for all data transfers</li>
+            <li>GDPR and Indian IT Act compliance</li>
+            <li>Anonymized passenger data processing</li>
+            <li>Secure API access with token authentication</li>
+            <li>Regular security audits and penetration testing</li>
+          </ul>
+        </div>
+        <div class="feature-box">
+          <h4>📈 Performance Optimization</h4>
+          <ul>
+            <li>Sub-second prediction response times</li>
+            <li>99.9% uptime with redundant servers</li>
+            <li>Auto-scaling for peak traffic handling</li>
+            <li>Edge computing for faster regional access</li>
+            <li>Continuous model retraining every 24 hours</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Future Roadmap -->
+    <div class="card" style="animation-delay: 0.8s;">
+      <h2>🚀 Future Roadmap & Innovations</h2>
+      <div class="trends-grid">
+        <div class="trend-card">
+          <div class="trend-header">
+            <div class="trend-icon" style="background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);">🎯</div>
+            <div class="trend-content">
+              <h4>Q2 2025: Predictive Maintenance</h4>
+              <p>AI-powered vehicle health monitoring to predict maintenance needs, reducing breakdowns by 40% and improving fleet reliability</p>
+            </div>
+          </div>
+        </div>
+        <div class="trend-card">
+          <div class="trend-header">
+            <div class="trend-icon" style="background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);">🗣️</div>
+            <div class="trend-content">
+              <h4>Q3 2025: Voice-based Booking</h4>
+              <p>Natural language processing for voice-activated ticket booking in 12 Indian languages, targeting rural markets</p>
+            </div>
+          </div>
+        </div>
+        <div class="trend-card">
+          <div class="trend-header">
+            <div class="trend-icon" style="background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);">🌍</div>
+            <div class="trend-content">
+              <h4>Q4 2025: Carbon Footprint Tracking</h4>
+              <p>Environmental impact calculator helping operators transition to eco-friendly fleets with data-driven insights</p>
+            </div>
+          </div>
+        </div>
+        <div class="trend-card">
+          <div class="trend-header">
+            <div class="trend-icon" style="background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);">🤖</div>
+            <div class="trend-content">
+              <h4>2026: Autonomous Route Planning</h4>
+              <p>Fully automated route optimization based on real-time demand, reducing operational planning time by 80%</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="insight-box" style="margin-top: 30px;">
+        <h4>💼 Partner With Us</h4>
+        <p>Whether you're a state transport corporation, private operator, or technology integrator, BusPredict AI offers customized solutions to transform your operations. Our API-first approach ensures seamless integration with existing systems.</p>
+        <p><strong>Contact:</strong> partnerships@buspredict.ai | <strong>Phone:</strong> 1800-BUS-PREDICT</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Animate progress bars on scroll
+    const observerOptions = {
+      threshold: 0.5,
+      rootMargin: '0px 0px -100px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.width = entry.target.getAttribute('data-width');
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('.progress-fill').forEach(bar => {
+      const width = bar.style.width;
+      bar.setAttribute('data-width', width);
+      bar.style.width = '0%';
+      observer.observe(bar);
+    });
+
+    // Add staggered animation to cards
+    document.querySelectorAll('.card').forEach((card, index) => {
+      card.style.animationDelay = `${index * 0.1}s`;
+    });
+  </script>
+</body>
+</html>

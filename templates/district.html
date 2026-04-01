@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tourist Family</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+            padding: 20px;
+        }
+
+        .animated-btn {
+            display: inline-block;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-decoration: none;
+            color: white;
+            background: linear-gradient(45deg, #FF5F6D, #FFC371);
+            border-radius: 50px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            margin-bottom: 20px; /* Adds space between button and other content */
+        }
+        
+        .animated-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+            background: linear-gradient(45deg, #FFC371, #FF5F6D);
+        }
+
+        .animated-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .animated-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: left 0.4s ease-in-out;
+        }
+
+        .animated-btn:hover::before {
+            left: 100%;
+        }
+
+        /* Existing styles for the rest of the page content */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            color: rgba(255,255,255,0.9);
+            font-size: 1.2rem;
+        }
+
+        .state-section {
+            margin-bottom: 50px;
+        }
+
+        .state-title {
+            color: white;
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+            padding-bottom: 10px;
+        }
+
+        .districts-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .district-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .district-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .district-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .district-card:hover .district-image {
+            transform: scale(1.05);
+        }
+
+        .district-info {
+            padding: 15px;
+            text-align: center;
+        }
+
+        .district-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .district-population {
+            color: #666;
+            font-size: 0.9rem;
+            background: #f0f0f0;
+            padding: 5px 10px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 1.2rem;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 1200px) {
+            .districts-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (max-width: 900px) {
+            .districts-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .districts-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .districts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+
+
+
+        .animated-btn {
+    display: inline-block;
+    padding: 10px 20px; /* Reduced padding */
+    font-size: 1rem; /* Reduced font size */
+    font-weight: bold;
+    text-decoration: none;
+    color: white;
+    background: linear-gradient(45deg, #4f87ff);
+    border-radius: 50px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2); /* Reduced shadow */
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    border: none;
+    cursor: pointer;
+    margin: 5px; /* Reduced margin */
+}
+
+.animated-btn:hover {
+    transform: translateY(-3px); /* Reduced hover effect */
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3); /* Reduced hover shadow */
+    background: linear-gradient(45deg, #60a4bf, #3aa199);
+}
+
+.animated-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.animated-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.2);
+    transition: left 0.4s ease-in-out;
+}
+
+.animated-btn:hover::before {
+    left: 100%;
+}
+    </style>
+</head>
+<body>
+  <div style="position: absolute; top: 20px; right: 20px; z-index: 10;">
+    <a href="state.html" class="animated-btn">State</a>
+    <a href="main.html" class="animated-btn">Predict</a>
+    <a href="analasys.html" class="animated-btn">Analytics</a>
+  </div>
+    <div class="header">
+        <h1>🏛️ AP/TS</h1>
+        <p>Explore popular districts of both states with population data</p>
+    </div>
+    <div class="header">
+    <div id="loading" class="loading">Loading district information...</div>
+    <div id="content"></div>
+
+    <script>
+        // Andhra Pradesh districts data with most popular/famous landmark images
+        const apDistricts = [
+          {
+                name: "Anakapalli",
+                population: "1,726,998",
+                landmark: "86,350",
+                imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTAKmPvipmpKVpnmJDouaSJNEPz1GCfLLjR3A&s"
+            },
+            {
+                name: "Eluru",
+                population: "2,071,700",
+                landmark: "149,872",
+                imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRg4cL5uH5BUzwYmzF59ZgV5xeL4K34Ugp-fA&s"
+            },
+            {
+                name: "Visakhapatnam",
+                population: "4,290,589",
+                landmark: "214,529",
+                imageUrl: "https://s7ap1.scene7.com/is/image/incredibleindia/visakhapatnam-andhra-pradesh-city-2-hero?qlt=82&ts=1742152267435"
+            },
+            {
+                name: "East Godavari",
+                population: "5,154,296",
+                landmark: "257,715",
+                imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ9oRsZ_0n6fTsCuuXmHgkQcwM3YphKG-O6qk5N89gyqHj6YYrihYOb1YYLI1QaHXzhLRc&usqp=CAU"
+            },
+            {
+                name: "West Godavari",
+                population: "3,936,966",
+                landmark: "196,848",
+                imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9T2VS-KQavUvob7rrXDUrDnoguJtbSKbd6w&s"
+            },
+            {
+                name: "Krishna",
+                population: "4,517,398",
+                landmark: "225,870",
+                imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ8sqG7TWl2eCJwijF48-oJa5DKhSu__97IxA&s"
+            },
+            {
+                name: "Guntur",
+                population: "4,887,813",
+                landmark: "244,391",
+                imageUrl: "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/16/57/44/66/curves-and-bends.jpg?w=900&h=500&s=1"
+            },
+            {
+                name: "Prakasam",
+                population: "3,397,448",
+                landmark: "169,872",
+                imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR1tSuVrvjc9SaJLrOaLhAXJYXaPC7l_T-_9Q&s"
+            },
+            {
+                name: "Nellore",
+                population: "2,966,082",
+                landmark: "169,872",
+                imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNq5JxtUH0L1W5OzxYZaQvJb7rXKGq_6SFSw&s"
+            },
+            {
+                name: "Chittoor",
+                population: "4,174,064",
+                landmark: "148,304",
+                imageUrl: "https://hblimg.mmtcdn.com/content/hubble/img/ttd_images/mmt/activities/t_ufs/m_Chittoor_Tada_falls_1_l_427_640.jpg"
+            },
+            {
+                name: "Kadapa",
+                population: "2,884,524",
+                landmark: "208,703",
+                imageUrl: "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/15/4a/20/f2/grand-canyon-of-india.jpg?w=500&h=500&s=1"
+            },
+            {
+                name: "Anantapur",
+                population: "4,081,148",
+                landmark: "144,226",
+                imageUrl: "https://s7ap1.scene7.com/is/image/incredibleindia/lepakshi-anantapur-ap-2-attr-hero?qlt=82&ts=1726743907673"
+            },
+            {
+                name: "Kurnool",
+                population: "4,053,463",
+                landmark: "204,057",
+                imageUrl: "https://s7ap1.scene7.com/is/image/incredibleindia/konda-reddy-fort-kurnool-andhra%20pradesh-city-ff?qlt=82&ts=1726744175465"
+            },
+            {
+                name: "Vizianagaram",
+                population: "2,344,474",
+                landmark: "117,224",
+                imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/West_Entrance_of_the_Vizianagaram_fort_01.JPG/250px-West_Entrance_of_the_Vizianagaram_fort_01.JPG"
+            },
+            {
+                name: "Srikakulam",
+                population: "2,703,114",
+                landmark: "135,156",
+                imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQA7l3kzZstVLmhTS7XLXf9v-z0-7Pxt9xs-Q&s"
+            }
+        ];
+
+        // Telangana districts data with most popular/famous landmark images
+        const telanganaDistricts = [
+            {
+                name: "Hyderabad",
+                population: "3,943,323",
+                landmark: "297,166",
+                imageUrl: "https://upload.wikimedia.org/wikipedia/commons/b/b4/Charminar_20112016.jpg"
+            },
+            {
+                name: "Rangareddy",
+                population: "5,296,741",
+                landmark: "264,837",
+                imageUrl: "https://www.theindiatourism.com/images/Rangareddy.jpg"
+            },
+            {
+                name: "Medchal-Malkajgiri",
+                population: "4,039,008",
+                landmark: "201,950",
+                imageUrl: "https://upload.wikimedia.org/wikipedia/commons/f/f9/A-Block_at_Night.jpg"
+            },
+            {
+                name: "Karimnagar",
+                population: "3,776,269",
+                landmark: "188,813",
+                imageUrl: "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/13/c9/df/26/photo3jpg.jpg?w=1400&h=-1&s=1"
+            },
+            {
+                name: "Warangal R/U",
+                population: "3,310,808",
+                landmark: "165,540",
+                imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-SxRdFbsmC4uUorXKrBcA94c3SVC1CRwIXw&s"
+            },
+            {
+                name: "Khammam",
+                population: "2,797,370",
+                landmark: "139,868",
+                imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTt-PxD48z3NH9m55b6ulKmUrBCAYs3XRzbLg&s"
+            },
+            {
+                name: "Nalgonda",
+                population: "3,483,648",
+                landmark: "174,182",
+                imageUrl: "https://hblimg.mmtcdn.com/content/hubble/img/ttd_images/mmt/activities/m_Bhadrachalam_Nalgonda_1_l_480_640.jpg?im=Resize=(288,162)"
+            },
+            {
+                name: "Mahbubnagar",
+                population: "4,042,191",
+                landmark: "202,109",
+                imageUrl: "https://images.herzindagi.info/image/2021/Jul/best-places-in-Mahbubnagar-in-Telangana.jpg"
+            },
+            {
+                name: "Nizamabad",
+                population: "2,551,335",
+                landmark: "127,567",
+                imageUrl: "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/26/ff/ef/19/this-is-a-very-ancient.jpg?w=900&h=-1&s=1"
+            }, 
+            {
+                name: "Adilabad",
+                population: "2,741,239",
+                landmark: "137,062",
+                imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3IHZcPEBRWM6fbNRnMgElBaw8C0gIxml75w&s"
+            }
+        ];
+
+        // Function to create district card
+        function createDistrictCard(district) {
+            const card = document.createElement('div');
+            card.className = 'district-card';
+            
+            const img = document.createElement('img');
+            img.className = 'district-image';
+            img.alt = district.name;
+            img.loading = 'lazy';
+            
+            // Fallback images for better reliability
+            const fallbackImages = [
+                district.imageUrl,
+                `https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Andhra_Pradesh_in_India.svg/300px-Andhra_Pradesh_in_India.svg.png`,
+                `https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Telangana_in_India.svg/300px-Telangana_in_India.svg.png`,
+                'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImdyYWQiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiM2NjdlZWE7c3RvcC1vcGFjaXR5OjEiIC8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdHlsZT0ic3RvcC1jb2xvcjojNzY0YmEyO3N0b3Atb3BhY2l0eToxIiAvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiLz48dGV4dCB4PSI1MCUiIHk9IjQ1JSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE4IiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPvCfj5s8L3RleHQ+PHRleHQgeD0iNTAlIiB5PSI2NSUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjgpIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+RmFtb3VzIExhbmRtYXJrPC90ZXh0Pjwvc3ZnPg=='
+            ];
+            
+            let imageIndex = 0;
+            
+            function tryNextImage() {
+                if (imageIndex < fallbackImages.length - 1) {
+                    imageIndex++;
+                    img.src = fallbackImages[imageIndex];
+                }
+            }
+            
+            img.onerror = tryNextImage;
+            img.src = fallbackImages[0];
+            
+            const info = document.createElement('div');
+            info.className = 'district-info';
+            
+            const name = document.createElement('div');
+            name.className = 'district-name';
+            name.textContent = district.name;
+            
+            const landmark = document.createElement('div');
+            landmark.style.cssText = 'font-size: 0.8rem; color: #888; margin-bottom: 5px; font-style: italic;';
+            landmark.textContent = district.landmark;
+            
+            const population = document.createElement('div');
+            population.className = 'district-population';
+            population.textContent = `Population: ${district.population}`;
+            
+            info.appendChild(name);
+            info.appendChild(landmark);
+            info.appendChild(population);
+            card.appendChild(img);
+            card.appendChild(info);
+            
+            return card;
+        }
+
+        // Function to create state section
+        function createStateSection(title, districts) {
+            const section = document.createElement('div');
+            section.className = 'state-section';
+            
+            const stateTitle = document.createElement('h2');
+            stateTitle.className = 'state-title';
+            stateTitle.textContent = title;
+            
+            const grid = document.createElement('div');
+            grid.className = 'districts-grid';
+            
+            districts.forEach(district => {
+                const card = createDistrictCard(district);
+                grid.appendChild(card);
+            });
+            
+            section.appendChild(stateTitle);
+            section.appendChild(grid);
+            
+            return section;
+        }
+
+        // Function to load all districts
+        function loadDistricts() {
+            const content = document.getElementById('content');
+            const loading = document.getElementById('loading');
+            
+            setTimeout(() => {
+                // Create Andhra Pradesh section
+                const apSection = createStateSection('🌾 Andhra Pradesh Districts', apDistricts);
+                content.appendChild(apSection);
+                
+                // Create Telangana section
+                const telanganaSection = createStateSection('💎 Telangana Districts', telanganaDistricts);
+                content.appendChild(telanganaSection);
+                
+                loading.style.display = 'none';
+                content.style.display = 'block';
+            }, 500);
+        }
+
+        // Load districts when page loads
+        window.addEventListener('DOMContentLoaded', loadDistricts);
+    </script>
+    <!-- <a href="state.html" class="animated-btn">Predict</a>
+
+    <div class="header"> -->
+        <h1>🏛️ Andhra Pradesh & Telangana Districts</h1>
+        <p>Explore all districts of both states with population data</p>
+    </div>
+
+    </body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bus Demand Forecast</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@700&display=swap');
+
+    :root {
+      --primary: #d62828;
+      --primary-dark: #9b1c1c;
+      --card-bg: #ffffffdd;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Raleway', sans-serif;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #fff5f5;
+      background-image: repeating-linear-gradient(
+        45deg,
+        #f8d7da 0px,
+        #f8d7da 1px,
+        transparent 1px,
+        transparent 20px
+      ),
+      repeating-linear-gradient(
+        -45deg,
+        #f8d7da 0px,
+        #f8d7da 1px,
+        transparent 1px,
+        transparent 20px
+      );
+      position: relative;
+      overflow: hidden; /* This line prevents scrolling */
+    }
+
+    body::before {
+      content: "Bus Demand Bus Demand Bus Demand Bus Demand Bus Demand Bus Demand Bus Demand Bus Demand Bus Demand Bus Demand Bus Demand Bus Demand";
+      position: absolute;
+      white-space: nowrap;
+      font-size: 120px;
+      font-weight: bold;
+      color: rgba(214, 40, 40, 0.07);
+      top: -20%;
+      left: -50%;
+      transform: rotate(-30deg);
+      z-index: 0;
+      width: 300%;
+      height: 300%;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .card {
+      background: var(--card-bg);
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+      width: 400px;
+      text-align: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    h2 {
+      margin-bottom: 24px;
+      color: var(--primary);
+      font-size: 26px;
+    }
+
+    input, button, select {
+      width: 100%;
+      padding: 12px;
+      margin-top: 12px;
+      border-radius: 8px;
+      font-size: 15px;
+      border: 1px solid #ccc;
+      transition: all 0.3s ease;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      background-color: white;
+      cursor: pointer;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--primary);
+      outline: none;
+      box-shadow: 0 0 6px rgba(214, 40, 40, 0.3);
+    }
+
+    button {
+      background-color: var(--primary);
+      color: white;
+      font-weight: bold;
+      border: none;
+      margin-top: 20px;
+    }
+
+    button:hover {
+      background-color: var(--primary-dark);
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 16px;
+      font-weight: 500;
+      min-height: 24px;
+    }
+
+    .select-wrapper {
+      position: relative;
+      margin-top: 12px;
+    }
+
+    .select-wrapper::after {
+      content: attr(data-selected-id);
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px;
+      color: #888;
+      pointer-events: none;
+      background: white;
+      padding: 0 5px;
+      border-left: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Bus Demand Forecast</h2>
+    <form id="forecastForm">
+      <input type="date" name="doj" required>
+      <div class="select-wrapper" data-selected-id="">
+        <select name="srcid" id="srcSelect" required>
+          <option value="" disabled selected>Select Source Location</option>
+          <option value="1">Bangalore</option>
+          <option value="2">Chennai</option>
+          <option value="3">Hyderabad</option>
+          <option value="4">Mumbai</option>
+          <option value="5">Pune</option>
+          <option value="6">Delhi</option>
+          <option value="7">Kolkata</option>
+          <option value="8">Ahmedabad</option>
+          <option value="9">Jaipur</option>
+          <option value="10">Goa</option>
+          <option value="11">Visakhapatnam</option>
+          <option value="12">Lucknow</option>
+          <option value="13">Chandigarh</option>
+          <option value="14">Coimbatore</option>
+          <option value="15">Madurai</option>
+        </select>
+      </div>
+      <div class="select-wrapper" data-selected-id="">
+        <select name="destid" id="destSelect" required>
+          <option value="" disabled selected>Select Destination Location</option>
+          <option value="1">Bangalore</option>
+          <option value="2">Chennai</option>
+          <option value="3">Hyderabad</option>
+          <option value="4">Mumbai</option>
+          <option value="5">Pune</option>
+          <option value="6">Delhi</option>
+          <option value="7">Kolkata</option>
+          <option value="8">Ahmedabad</option>
+          <option value="9">Jaipur</option>
+          <option value="10">Goa</option>
+          <option value="11">Visakhapatnam</option>
+          <option value="12">Lucknow</option>
+          <option value="13">Chandigarh</option>
+          <option value="14">Coimbatore</option>
+          <option value="15">Madurai</option>
+        </select>
+      </div>
+      <button type="submit">Get Forecast</button>
+    </form>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById('forecastForm');
+    const resultDiv = document.getElementById('result');
+    const srcSelect = document.getElementById('srcSelect');
+    const destSelect = document.getElementById('destSelect');
+
+    function updateSelectedId(selectElement, displayElement) {
+        const selectedOption = selectElement.options[selectElement.selectedIndex];
+        displayElement.dataset.selectedId = selectedOption.value ? `ID: ${selectedOption.value}` : '';
+    }
+
+    srcSelect.addEventListener('change', (e) => {
+        updateSelectedId(e.target, e.target.closest('.select-wrapper'));
+    });
+
+    destSelect.addEventListener('change', (e) => {
+        updateSelectedId(e.target, e.target.closest('.select-wrapper'));
+    });
+
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+      const data = {
+        doj: formData.get('doj'),
+        srcid: formData.get('srcid'),
+        destid: formData.get('destid')
+      };
+
+      resultDiv.style.color = '#555';
+      resultDiv.textContent = "Fetching forecast...";
+
+      try {
+        const res = await fetch('/forecast', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+
+        const result = await res.json();
+        if (result.success) {
+          resultDiv.style.color = 'green';
+          resultDiv.textContent = `Predicted Demand: ${result.demand}`;
+        } else {
+          resultDiv.style.color = 'red';
+          resultDiv.textContent = 'Prediction failed.';
+        }
+      } catch (err) {
+        resultDiv.style.color = 'red';
+        resultDiv.textContent = 'Error occurred.';
+        console.error(err);
+      }
+    });
+  </script>
+</body>
+</html> -->
