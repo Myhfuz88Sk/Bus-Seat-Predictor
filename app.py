@@ -1,24 +1,56 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+import os
 import hashlib
-import requests
 import pickle
 import pandas as pd
+import requests
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from database import get_connection, create_users_table
-from src.data_loader import load_data  # THIS IS THE CORRECT FUNCTION
+from src.data_loader import load_data  # Make sure this exists and works
 
-
+# -------------------------------
+# App Setup
+# -------------------------------
 app = Flask(__name__)
-app.secret_key = "supersecretkey"
+app.secret_key = "supersecretkey"  # Replace with env var in production
 
 # Ensure users table exists
 create_users_table()
+
+# Base directory for absolute paths
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(BASE_DIR, 'enhanced_redbus_model.pkl')
+
+# -------------------------------
+# Load Model
+# -------------------------------
+try:
+    with open(MODEL_PATH, 'rb') as f:
+        model = pickle.load(f)
+    print("Model loaded successfully.")
+except Exception as e:
+    print("Error loading model:", e)
+    model = None
+
+# -------------------------------
+# Helper Functions
+# -------------------------------
+def engineer_features(df):
+    """
+    Transform input dataframe into the features your model expects.
+    Replace this with your actual preprocessing from training.
+    """
+    df = df.copy()
+    df['doj'] = pd.to_datetime(df['doj'], errors='coerce')
+    df['day_of_week'] = df['doj'].dt.dayofweek
+    df['month'] = df['doj'].dt.month
+    return df[['src', 'dest', 'day_of_week', 'month']]
 
 # -------------------------------
 # Routes
 # -------------------------------
 @app.route('/')
 def home():
-    return render_template('index.html')  # Landing page
+    return render_template('index.html')
 
 @app.route('/signup.html')
 def signup_page():
@@ -32,9 +64,9 @@ def login_page():
 def district_page():
     return render_template('district.html')
 
-# @app.route('/state.html')
-# def state_page():
-#     return render_template('state.html')
+@app.route('/state.html')
+def state_page():
+    return render_template('state.html')
 
 @app.route('/analasys.html')
 def analasys_page():
@@ -44,48 +76,30 @@ def analasys_page():
 def main_page():
     return render_template('main.html')
 
-
-try:
-    with open('enhanced_redbus_model.pkl', 'rb') as f:
-        model = pickle.load(f)
-except Exception as e:
-    print("Error loading model:", e)
-    model = None
-
-def engineer_features(df):
-    """
-    Transform input dataframe into the features your model expects.
-    Replace this with your actual preprocessing from training.
-    """
-    df = df.copy()
-    df['doj'] = pd.to_datetime(df['doj'], errors='coerce')
-    df['day_of_week'] = df['doj'].dt.dayofweek
-    df['month'] = df['doj'].dt.month
-    # Replace with the actual features your model uses
-    return df[['src', 'dest', 'day_of_week', 'month']]
-
-
+# -------------------------------
+# Prediction API
+# -------------------------------
 @app.route('/predict', methods=['POST'])
 def predict():
     if model is None:
         return jsonify({"error": "Model not loaded. Prediction not available."})
 
     data = request.get_json()
-    doj = data['doj']
-    src = data['src']
-    dest = data['dest']
+    doj = data.get('doj')
+    src = data.get('src')
+    dest = data.get('dest')
 
-    # Optional: load datasets if needed for feature reference
-    train_df, test_df, transactions_df = load_data(
-        'data/train.csv',
-        'data/test.csv',
-        'data/transactions.csv'
-    )
+    # Load CSV datasets
+    train_path = os.path.join(BASE_DIR, 'data', 'train.csv')
+    test_path = os.path.join(BASE_DIR, 'data', 'test.csv')
+    transactions_path = os.path.join(BASE_DIR, 'data', 'transactions.csv')
+
+    train_df, test_df, transactions_df = load_data(train_path, test_path, transactions_path)
 
     if train_df is None or test_df is None or transactions_df is None:
         return jsonify({"error": "Failed to load dataset files."})
 
-    # Create single-row DataFrame from user input
+    # Create single-row DataFrame for prediction
     input_df = pd.DataFrame([{'doj': doj, 'src': src, 'dest': dest}])
     features_df = engineer_features(input_df)
 
@@ -102,17 +116,18 @@ def predict():
         "priceRange": "₹800-1200"
     }
     return jsonify(prediction_result)
+
 # -------------------------------
-# Signup Submission
+# Signup
 # -------------------------------
 @app.route('/signup_submit', methods=['POST'])
 def signup_submit():
     try:
-        fullname = request.form['fullname']
-        email = request.form['email']
-        usertype = request.form['usertype']
-        password = request.form['password']
-        confirm_password = request.form['confirm_password']
+        fullname = request.form.get('fullname')
+        email = request.form.get('email')
+        usertype = request.form.get('usertype')
+        password = request.form.get('password')
+        confirm_password = request.form.get('confirm_password')
 
         if password != confirm_password:
             flash("Passwords do not match!", "error")
@@ -123,14 +138,12 @@ def signup_submit():
         conn = get_connection()
         cursor = conn.cursor()
 
-        # Check if email already exists
         cursor.execute("SELECT * FROM users WHERE email=%s", (email,))
         if cursor.fetchone():
             flash("Email already registered.", "error")
             conn.close()
             return redirect(url_for('signup_page'))
 
-        # Insert user
         cursor.execute(
             "INSERT INTO users (full_name, email, user_type, password) VALUES (%s, %s, %s, %s)",
             (fullname, email, usertype, hashed_password)
@@ -142,21 +155,18 @@ def signup_submit():
         return redirect(url_for('login_page'))
 
     except Exception as e:
-        import traceback
-        print("Signup route error:", e)
-        traceback.print_exc()
-        flash("Internal server error", "error")
+        print("Signup error:", e)
+        flash("Internal server error.", "error")
         return redirect(url_for('signup_page'))
 
 # -------------------------------
-# Login Submission
+# Login
 # -------------------------------
 @app.route('/login_submit', methods=['POST'])
 def login_submit():
     try:
-        email = request.form['email']
-        password = request.form['password']
-
+        email = request.form.get('email')
+        password = request.form.get('password')
         hashed_password = hashlib.sha256(password.encode()).hexdigest()
 
         conn = get_connection()
@@ -176,33 +186,25 @@ def login_submit():
             return redirect(url_for('login_page'))
 
     except Exception as e:
-        import traceback
-        print("Login route error:", e)
-        traceback.print_exc()
+        print("Login error:", e)
         flash("Internal server error. Please try again.", "error")
         return redirect(url_for('login_page'))
 
 # -------------------------------
-# Main Page (After Login)
+# Forecast
 # -------------------------------
-# @app.route('/main.html')
-# def main_page():
-#     return render_template('main.html')  # Create main.html
-
-@app.route('/state.html')
-def state_page():
-    return render_template('state.html')
-
 @app.route('/forecast', methods=['POST'])
 def forecast():
     city = request.form.get('city')
+    api_key = os.environ.get("WEATHER_API_KEY")  # Use env var for safety
+    if not api_key:
+        return jsonify({"error": "Weather API key not set."})
+
     try:
-        # Replace YOUR_API_KEY with your actual weather API key
-        api_url = f"http://api.weatherapi.com/v1/forecast.json?key=YOUR_API_KEY&q={city}&days=1"
+        api_url = f"http://api.weatherapi.com/v1/forecast.json?key={api_key}&q={city}&days=1"
         response = requests.get(api_url)
         response.raise_for_status()
         data = response.json()
-        # Extract relevant info for frontend
         forecast_info = {
             "location": data['location']['name'],
             "region": data['location']['region'],
@@ -213,10 +215,11 @@ def forecast():
         return jsonify(forecast_info)
     except requests.exceptions.RequestException as e:
         print("Forecast API error:", e)
-        return jsonify({"error": "Network error. Please check your connection and try again."})
-# -------------------------------
-# Run App
-# -------------------------------
-if __name__ == '__main__':
-    app.run(debug=True)
+        return jsonify({"error": "Network error. Please check your connection."})
 
+# -------------------------------
+# Main
+# -------------------------------
+# No debug=True here for production
+if __name__ == '__main__':
+    app.run()
