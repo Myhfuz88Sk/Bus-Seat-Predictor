@@ -3,19 +3,16 @@ import hashlib
 import pickle
 import pandas as pd
 import requests
-from database import get_connection, create_users_table
+from storage import add_user, find_user_by_email
 from src.data_loader import load_data
 
 # -------------------------------
 # App Initialization
 # -------------------------------
 app = Flask(__name__)
-app.secret_key = "supersecretkey_here"  # Hardcoded secret key for Render
+app.secret_key = "supersecretkey_here"
 
-WEATHER_API_KEY = "your_weatherapi_key_here"  # Hardcoded WeatherAPI key
-
-# Ensure users table exists
-create_users_table()
+WEATHER_API_KEY = "your_weatherapi_key_here"
 
 # -------------------------------
 # Load Model
@@ -81,14 +78,15 @@ def predict():
     src = data['src']
     dest = data['dest']
 
-    # Load datasets for reference
+    # Load datasets
     train_df, test_df, transactions_df = load_data(
         'data/train.csv',
         'data/test.csv',
         'data/transactions.csv'
     )
-    if train_df is None or test_df is None or transactions_df is None:
-        return jsonify({"error": "Failed to load dataset files."})
+
+    if train_df is None:
+        return jsonify({"error": "Dataset loading failed"})
 
     input_df = pd.DataFrame([{'doj': doj, 'src': src, 'dest': dest}])
     features_df = engineer_features(input_df)
@@ -107,7 +105,7 @@ def predict():
     })
 
 # -------------------------------
-# Signup Route
+# Signup Route (JSON Storage)
 # -------------------------------
 @app.route('/signup_submit', methods=['POST'])
 def signup_submit():
@@ -122,32 +120,31 @@ def signup_submit():
             flash("Passwords do not match!", "error")
             return redirect(url_for('signup_page'))
 
-        hashed_password = hashlib.sha256(password.encode()).hexdigest()
-        conn = get_connection()
-        cursor = conn.cursor()
-
-        cursor.execute("SELECT * FROM users WHERE email=%s", (email,))
-        if cursor.fetchone():
+        if find_user_by_email(email):
             flash("Email already registered.", "error")
-            conn.close()
             return redirect(url_for('signup_page'))
 
-        cursor.execute(
-            "INSERT INTO users (full_name, email, user_type, password) VALUES (%s, %s, %s, %s)",
-            (fullname, email, usertype, hashed_password)
-        )
-        conn.commit()
-        conn.close()
+        hashed_password = hashlib.sha256(password.encode()).hexdigest()
+
+        user = {
+            "full_name": fullname,
+            "email": email,
+            "user_type": usertype,
+            "password": hashed_password
+        }
+
+        add_user(user)
+
         flash("Account created successfully!", "success")
         return redirect(url_for('login_page'))
 
     except Exception as e:
-        print("Signup route error:", e)
+        print("Signup error:", e)
         flash("Internal server error", "error")
         return redirect(url_for('signup_page'))
 
 # -------------------------------
-# Login Route
+# Login Route (JSON Storage)
 # -------------------------------
 @app.route('/login_submit', methods=['POST'])
 def login_submit():
@@ -156,16 +153,9 @@ def login_submit():
         password = request.form['password']
         hashed_password = hashlib.sha256(password.encode()).hexdigest()
 
-        conn = get_connection()
-        cursor = conn.cursor()
-        cursor.execute(
-            "SELECT * FROM users WHERE email=%s AND password=%s",
-            (email, hashed_password)
-        )
-        user = cursor.fetchone()
-        conn.close()
+        user = find_user_by_email(email)
 
-        if user:
+        if user and user["password"] == hashed_password:
             flash(f"🎉 Welcome, {user['full_name']}!", "success")
             return redirect(url_for('state_page'))
         else:
@@ -173,8 +163,8 @@ def login_submit():
             return redirect(url_for('login_page'))
 
     except Exception as e:
-        print("Login route error:", e)
-        flash("Internal server error. Please try again.", "error")
+        print("Login error:", e)
+        flash("Internal server error.", "error")
         return redirect(url_for('login_page'))
 
 # -------------------------------
@@ -183,11 +173,13 @@ def login_submit():
 @app.route('/forecast', methods=['POST'])
 def forecast():
     city = request.form.get('city')
+
     try:
         api_url = f"http://api.weatherapi.com/v1/forecast.json?key={WEATHER_API_KEY}&q={city}&days=1"
         response = requests.get(api_url)
         response.raise_for_status()
         data = response.json()
+
         return jsonify({
             "location": data['location']['name'],
             "region": data['location']['region'],
@@ -195,9 +187,10 @@ def forecast():
             "temp_c": data['current']['temp_c'],
             "condition": data['current']['condition']['text']
         })
+
     except Exception as e:
-        print("Forecast API error:", e)
-        return jsonify({"error": "Network error. Please check your connection and try again."})
+        print("Forecast error:", e)
+        return jsonify({"error": "Weather API failed"})
 
 # -------------------------------
 # Run App
